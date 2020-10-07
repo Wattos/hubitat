@@ -1,0 +1,62 @@
+// TODO: Move to hubitat gradle plugin
+
+subprojects {
+    task compileHubitatApps(type: Copy) {
+        def includedEnabled = false;
+        from 'src/main/groovy/apps'
+        into "$buildDir/apps"
+        filter { line ->
+            if (line.startsWith('/** Includes-ON **/')) {
+                includedEnabled = true;
+                return null;
+            }
+
+            if (line.startsWith('/** Includes-OFF **/')) {
+                includedEnabled = false;
+                return null;
+            }
+
+            if (!includedEnabled) {
+                return line;
+            }
+
+            if (line.startsWith('/* include ')) {
+                line = line.replace('/* include ', '')
+                line = line.replace(' */', '')
+                return new File("$projectDir/src/main/groovy/apps", line).text
+            }
+
+            return line;
+        }
+    }
+
+    task compileHubitatDevices(type: Copy) {
+        def includedEnabled = false;
+        from 'src/main/groovy/devices'
+        into "$buildDir/devices"
+        filter { line ->
+            if (line.startsWith('/** Includes-ON **/')) {
+                includedEnabled = true;
+                return null;
+            }
+
+            if (line.startsWith('/** Includes-OFF **/')) {
+                includedEnabled = false;
+                return null;
+            }
+
+            if (!includedEnabled) {
+                return line;
+            }
+
+            if (line.startsWith('/* include ')) {
+                line = line.replace('/* include ', '')
+                line = line.replace(' */', '')
+                return new File("$projectDir/src/main/groovy/devices", line).text
+            }
+
+            return line;
+        }
+    }
+
+}
