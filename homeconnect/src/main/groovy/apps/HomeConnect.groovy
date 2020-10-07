@@ -25,10 +25,10 @@ private getClientId() { settings.clientId }
 private getClientSecret() { settings.clientSecret }
 
 
-//	===== Pages =====
+//    ===== Pages =====
 
 preferences {
-	page(name: "pageIntro")
+    page(name: "pageIntro")
     page(name: "pageAuthentication")
     page(name: "pageDevices")
 }
@@ -37,12 +37,12 @@ def pageIntro() {
     log.debug("Showing Introduction Page");
 
     return dynamicPage(
-		name: 'pageIntro',
-		title: 'Home Connect Introduction', 
-		nextPage: 'pageAuthentication',
-		install: false, 
-		uninstall: true) {
-		    section("""\
+        name: 'pageIntro',
+        title: 'Home Connect Introduction', 
+        nextPage: 'pageAuthentication',
+        install: false, 
+        uninstall: true) {
+        section("""\
                     |This application connects to the Home Connect service.
                     |It will allow you to monitor your smart appliances from Home Connect within Hubitat.
                     |
@@ -60,18 +60,18 @@ def pageIntro() {
                 input name: 'clientId', title: 'Client ID', type: 'text', required: true
                 input name: 'clientSecret', title: 'Client Secret', type: 'text', required: true
             }
-		    section('''\
+            section('''\
                     |Press 'Next' to connect to your Home Connect Account.
                     |'''.stripMargin()) {}
-	}
+    }
 }
 
 def pageAuthentication() {
     log.debug("Showing Authentication Page");
 
     if (!state.accessToken) {
-		state.accessToken = createAccessToken();
-	}
+        state.accessToken = createAccessToken();
+    }
 
     return dynamicPage(
         name: 'pageAuthentication', 
@@ -109,14 +109,14 @@ def pageDevices() {
 
 }
 
-
+//TODO: Move out into helper library
 // ===== Authentication =====
 // See Home Connect Developer documentation here: https://developer.home-connect.com/docs/authorization/flow
 private final OAUTH_AUTHORIZATION_URL() { 'https://api.home-connect.com/security/oauth/authorize' }
 private final OAUTH_TOKEN_URL() { 'https://api.home-connect.com/security/oauth/token' }
 
 mappings {
-	path("/oauth/callback") {action: [GET: "oAuthCallback"]};
+    path("/oauth/callback") {action: [GET: "oAuthCallback"]};
 }
 
 def generateOAuthUrl() {
@@ -139,7 +139,7 @@ def oAuthCallback() {
     log.debug("Received oAuth callback");
 
     def code = params.code;
-	def oAuthState = params.state;
+    def oAuthState = params.state;
     if (oAuthState != state.oAuthInitState) {
         log.error "Init state did not match our state on the callback. Ignoring the request"
         return renderOAuthFailure();
@@ -198,21 +198,21 @@ def apiRequestAccessToken(body) {
 def getOAuthAuthToken() {
     // Expire the token 1 minute before to avoid race conditions
     if(now() >= state.oAuthTokenExpires - 60_000) {
-		refreshOAuthToken();
-	}
+        refreshOAuthToken();
+    }
     return state.oAuthAuthToken;
 }
 
 def renderOAuthSuccess() {
-	render contentType: 'text/html', data: '''
-	<p>Your Home Connect Account is now connected to Hubitat</p>
-	<p>Close this window to continue setup.</p>
-	'''
+    render contentType: 'text/html', data: '''
+    <p>Your Home Connect Account is now connected to Hubitat</p>
+    <p>Close this window to continue setup.</p>
+    '''
 }
 
 def renderOAuthFailure() {
-	render contentType: 'text/html', data: '''
-		<p>Unable to connect to Home Connect. You can see the logs for more information</p>
-		<p>Close this window to try again.</p>
-	'''
+    render contentType: 'text/html', data: '''
+        <p>Unable to connect to Home Connect. You can see the logs for more information</p>
+        <p>Close this window to try again.</p>
+    '''
 }
