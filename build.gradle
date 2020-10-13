@@ -30,10 +30,10 @@ subprojects {
         }
     }
 
-    task compileHubitatDevices(type: Copy) {
+    task compileHubitatDrivers(type: Copy) {
         def includedEnabled = false;
-        from 'src/main/groovy/devices'
-        into "$buildDir/devices"
+        from 'src/main/groovy/drivers'
+        into "$buildDir/drivers"
         filter { line ->
             if (line.startsWith('/** Includes-ON **/')) {
                 includedEnabled = true;
@@ -52,7 +52,7 @@ subprojects {
             if (line.startsWith('/* include ')) {
                 line = line.replace('/* include ', '')
                 line = line.replace(' */', '')
-                return new File("$projectDir/src/main/groovy/devices", line).text
+                return new File("$projectDir/src/main/groovy/drivers", line).text
             }
 
             return line;

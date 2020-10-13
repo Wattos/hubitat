@@ -16,11 +16,15 @@ def HomeConnectAPI_create(Map params = [:]) {
     def instance = [:];
     def json = new JsonSlurper();
 
+    def authHeaders = {
+        return ['Authorization': "Bearer ${oAuthTokenFactory()}"]
+    }
+
     def apiGet = { path, closure ->
         log.debug("API Get Request to Home Connect with path $path and query $query")
         return httpGet(uri: apiUrl,
                 'path': path,
-                'headers': ['Authorization': "Bearer ${oAuthTokenFactory()}"]) { resp -> 
+                'headers': authHeaders()) { resp -> 
             closure.call(json.parseText(resp.data.text));
         }
     };
@@ -78,7 +82,7 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getHomeAppliance = { haId, closure ->
-        log.info("Retrieving Home Appliance '$id' from Home Connect")
+        log.info("Retrieving Home Appliance '$haId' from Home Connect")
         apiGet("/api/homeappliance/${haId}") { resp ->
             closure.call(resp.data)
         }
@@ -114,8 +118,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * ]
      */
     instance.getPrograms = { haId, closure ->
-        log.info("Retrieving All Programs of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs") { resp ->
+        log.info("Retrieving All Programs of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs") { resp ->
             closure.call(resp.data.programs)
         }
     };
@@ -150,8 +154,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * ]
      */
     instance.getAvailablePrograms = { haId, closure ->
-        log.info("Retrieving All Programs of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/available") { resp ->
+        log.info("Retrieving All Programs of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/available") { resp ->
             closure.call(resp.data.programs)
         }
     };
@@ -186,8 +190,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getAvailableProgram = { haId, programKey, closure ->
-        log.info("Retrieving the '${programKey}' Program of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/available/${programKey}") { resp ->
+        log.info("Retrieving the '${programKey}' Program of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/available/${programKey}") { resp ->
             closure.call(resp.data)
         }
     };
@@ -214,8 +218,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getActiveProgram = { haId, closure ->
-        log.info("Retrieving the active Program of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/active") { resp ->
+        log.info("Retrieving the active Program of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/active") { resp ->
             closure.call(resp.data)
         }
     };
@@ -242,8 +246,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      *   }
      */
     instance.getActiveProgramOptions = { haId, closure ->
-        log.info("Retrieving the active Program Options of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/active/options") { resp ->
+        log.info("Retrieving the active Program Options of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/active/options") { resp ->
             closure.call(resp.data.options)
         }
     };
@@ -260,8 +264,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getActiveProgramOption = { haId, optionKey, closure ->
-        log.info("Retrieving the active Program Option '${optionKey}' of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/active/options/${optionKey}") { resp ->
+        log.info("Retrieving the active Program Option '${optionKey}' of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/active/options/${optionKey}") { resp ->
             closure.call(resp.data.options)
         }
     };
@@ -291,8 +295,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getSelectedProgram = { haId, closure ->
-        log.info("Retrieving the selected Program of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/selected") { resp ->
+        log.info("Retrieving the selected Program of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/selected") { resp ->
             closure.call(resp.data)
         }
     };
@@ -319,8 +323,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      *   }
      */
     instance.getSelectedProgramOptions = { haId, closure ->
-        log.info("Retrieving the selected Program Options of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/selected/options") { resp ->
+        log.info("Retrieving the selected Program Options of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/selected/options") { resp ->
             closure.call(resp.data.options)
         }
     };
@@ -337,8 +341,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getSelectedProgramOption = { haId, optionKey, closure ->
-        log.info("Retrieving the selected Program Option ${optionKey} of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/programs/selected/options/${optionKey}") { resp ->
+        log.info("Retrieving the selected Program Option ${optionKey} of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/programs/selected/options/${optionKey}") { resp ->
             closure.call(resp.data.options)
         }
     };
@@ -371,8 +375,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * ]
      */
     instance.getStatus = { haId, closure ->
-        log.info("Retrieving the status of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/status") { resp ->
+        log.info("Retrieving the status of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/status") { resp ->
             closure.call(resp.data.status)
         }
     };
@@ -398,8 +402,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      *  }
      */
     instance.getSingleStatus = { haId, statusKey, closure ->
-        log.info("Retrieving the status of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/status/${statusKey}") { resp ->
+        log.info("Retrieving the status '${statusKey}' of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/status/${statusKey}") { resp ->
             closure.call(resp.data)
         }
     };
@@ -430,8 +434,8 @@ def HomeConnectAPI_create(Map params = [:]) {
      * ]
      */
     instance.getSettings = { haId, closure ->
-        log.info("Retrieving the settings of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/settings") { resp ->
+        log.info("Retrieving the settings of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/settings") { resp ->
             closure.call(resp.data.settings)
         }
     };
@@ -456,11 +460,35 @@ def HomeConnectAPI_create(Map params = [:]) {
      * }
      */
     instance.getSetting = { haId, settingsKey, closure ->
-        log.info("Retrieving the settings of Home Appliance '$id' from Home Connect")
-        apiGet("/api/homeappliances/${haid}/settings/${settingsKey}") { resp ->
+        log.info("Retrieving the setting '${settingsKey}' of Home Appliance '$haId' from Home Connect")
+        apiGet("/api/homeappliances/${haId}/settings/${settingsKey}") { resp ->
             closure.call(resp.data)
         }
     };
+
+    /**
+     * Get stream of events for one appliance
+     *
+     * NOTE: This can only be done from within a device driver. It will not work within an app
+     */
+    instance.connectDeviceEvents = { haId, interfaces -> 
+        log.info("Connecting to the event stream of Home Appliance '$haId' from Home Connect")
+        interfaces.eventStream.connect(
+            "${apiUrl}/api/homeappliances/${haId}/events",
+            [ headers: ([ 'Accept': 'text/event-stream' ] << authHeaders())])
+    }
+
+    /**
+     * Get stream of events for all appliances 
+     *
+     * NOTE: This can only be done from within a device driver. It will not work within an app
+     */
+    instance.connectEvents = { interfaces -> 
+        log.info("Connecting to the event stream of all Home Appliances from Home Connect")
+        interfaces.eventStream.connect(
+            "${apiUrl}/api/homeappliances/events",
+            [ headers: ([ 'Accept': 'text/event-stream' ] << authHeaders())])
+    }
 
     return instance;
 }

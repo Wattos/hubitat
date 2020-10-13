@@ -8,10 +8,10 @@ import groovy.json.JsonSlurper
 
 definition(
     name: 'Home Connect Integration',
-    namespace: 'wattos',
+    namespace: 'wattos.homeconnect',
     author: 'Filip Wieladek',
     description: 'Integrates with Home Connect',
-    category: 'MyApps',
+    category: 'My Apps',
     iconUrl: '',
     iconX2Url: '',
     iconX3Url: ''
@@ -24,9 +24,28 @@ definition(
 private getClientId() { settings.clientId }
 private getClientSecret() { settings.clientSecret }
 
+//  ===== Lifecycle methods ====
+def installed() {
+    log.info "installing Home Connect"
+    synchronizeDevices();
+}
 
-//    ===== Pages =====
+def uninstalled() {
+    log.info "uninstalled Home Connect"
+    deleteChildDevicesByDevices(getChildDevices());
+}
 
+def updated() {	
+    log.info "updating with settings"
+    synchronizeDevices();
+}
+
+//  ===== Pages =====
+def getHomeConnectAPI() {
+    return HomeConnectAPI;
+}
+
+//  ===== Pages =====
 preferences {
     page(name: "pageIntro")
     page(name: "pageAuthentication")
@@ -106,7 +125,39 @@ def pageDevices() {
             }
         }
     }
+}
 
+// ==== App behaviour ====
+
+def synchronizeDevices() {
+    def childDevices = getChildDevices();
+    def childrenMap = childDevices.collectEntries {
+        [ "${it.deviceNetworkId}": it ]
+    };
+
+    for (homeConnectDeviceId in settings.devices) {
+        def hubitatDeviceId = homeConnectIdToDeviceNetworkId(homeConnectDeviceId);
+
+        if (childrenMap.containsKey(hubitatDeviceId)) {
+            childrenMap.remove(hubitatDeviceId)
+            continue;
+        }
+
+        device = addChildDevice('wattos.homeconnect', 'Homeconnect Dishwasher', hubitatDeviceId);
+        device.updateDataValue("haId", homeConnectDeviceId);
+    }
+
+    deleteChildDevicesByDevices(childrenMap.values());
+}
+
+def deleteChildDevicesByDevices(devices) {
+    for (d in devices) {
+        deleteChildDevice(d.deviceNetworkId);
+    }
+}
+
+def homeConnectIdToDeviceNetworkId(haId) {
+    return "wattos.homeconnect:${haId}"
 }
 
 //TODO: Move out into helper library
@@ -125,7 +176,7 @@ def generateOAuthUrl() {
         'client_id': getClientId(),
         'redirect_uri': getOAuthRedirectUrl(),
         'response_type': 'code',
-        'scope': 'IdentifyAppliance Monitor',
+        'scope': 'IdentifyAppliance Monitor Settings',
         'state': state.oAuthInitState
     ];
     return "${OAUTH_AUTHORIZATION_URL()}?${URIUtils.toQueryString(params)}";
