@@ -107,25 +107,24 @@ void initialize() {
 }
 
 void installed() {
-    intializeStatus()
+    intializeStatus();
 }
 
 
 void updated() {
-    intializeStatus()
+    intializeStatus();
 }
 
 void uninstalled() {
-    interfaces.eventStream.close()
+    interfaces.eventStream.close();
 }
-
 
 void parse(String message) {
     log.debug "Received eventstream message: ${message}"
 }
 
-void eventStreamStatus(String message) {
-    log.debug "Received eventstream status message: ${message}"
+void eventStreamStatus(String description) {
+    log.debug "Received eventstream status message: ${description}"
 }
 
 void intializeStatus() {
@@ -140,9 +139,17 @@ void intializeStatus() {
         log.info "Status received: ${status}"
     }
 
-    parent.getHomeConnectAPI().getActiveProgram(haId) { status ->
-        log.info "Status received: ${status}"
+    try {
+        parent.getHomeConnectAPI().getActiveProgram(haId) { status ->
+            log.info "Status received: ${status}"
+        }
+    } catch (e) {
+        // no active program
+        if(isStateChange(device, "activeProgram", "")) {
+            sendEvent(name: "activeProgram", value: "newStat", descriptionText: "Active Program changed to: ${newStat}", displayed: true, isStateChange: true)
+        }
     }
 
-    parent.getHomeConnectAPI().connectDeviceEvents(interfaces);
+    interfaces.eventStream.close();
+    parent.getHomeConnectAPI().connectDeviceEvents(haId, interfaces);
 }
